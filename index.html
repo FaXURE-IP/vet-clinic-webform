@@ -43,13 +43,15 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const mode = urlParams.get('mode');
+            const mode = urlParams.get('mode') || 'signin';
             const form = document.getElementById('authForm');
             const roleGroup = document.getElementById('roleGroup');
             const formTitle = document.getElementById('formTitle');
             const submitButton = document.getElementById('submitButton');
-
-            if (mode === 'signup') {
+        
+            const validMode = mode === 'signup' ? 'signup' : 'signin';
+            
+            if (validMode === 'signup') {
                 formTitle.textContent = '🔐 Регистрация';
                 roleGroup.classList.remove('hidden');
                 submitButton.textContent = 'Зарегистрироваться';
@@ -58,22 +60,24 @@
                 roleGroup.classList.add('hidden');
                 submitButton.textContent = 'Войти';
             }
-
+        
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const formData = new FormData(form);
                 const data = {
-                    action: mode,
+                    action: validMode,
                     username: formData.get('username'),
                     password: formData.get('password')
                 };
-                if (mode === 'signup') {
-                    data.role = formData.get('role');
+                
+                if (validMode === 'signup') {
+                    data.role = formData.get('role') || 'ROLE_PATIENT';
                 }
+        
                 Telegram.WebApp.sendData(JSON.stringify(data));
                 Telegram.WebApp.close();
             });
         });
-    </script>
+        </script>
 </body>
 </html>
