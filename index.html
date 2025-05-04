@@ -8,12 +8,8 @@
         body { padding: 20px; font-family: Arial; background: #f0f2f5; }
         .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 15px; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
         button { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 5px; width: 100%; }
-        .role-group { margin: 15px 0; }
-        .role-option { display: flex; align-items: center; margin: 10px 0; }
-        .role-option input { width: auto; margin-right: 10px; }
-        .hidden { display: none; }
     </style>
 </head>
 <body>
@@ -26,7 +22,7 @@
             <div class="form-group">
                 <input type="password" placeholder="Пароль" name="password" required>
             </div>
-            <button type="submit" id="submitButton">Отправить</button>
+            <button type="submit" id="submitButton">Зарегистрироваться</button>
         </form>
     </div>
 
@@ -35,22 +31,19 @@
             const urlParams = new URLSearchParams(window.location.search);
             const mode = urlParams.get('mode') || 'signin';
             const form = document.getElementById('authForm');
-            const roleGroup = document.getElementById('roleGroup');
             const formTitle = document.getElementById('formTitle');
             const submitButton = document.getElementById('submitButton');
-        
+
             const validMode = mode === 'signup' ? 'signup' : 'signin';
             
             if (validMode === 'signup') {
                 formTitle.textContent = '🔐 Регистрация';
-                roleGroup.classList.remove('hidden');
                 submitButton.textContent = 'Зарегистрироваться';
             } else {
                 formTitle.textContent = '🔑 Вход';
-                roleGroup.classList.add('hidden');
                 submitButton.textContent = 'Войти';
             }
-        
+
             form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const formData = new FormData(form);
@@ -60,14 +53,15 @@
                     password: formData.get('password')
                 };
                 
+                // Всегда устанавливаем роль пациента при регистрации
                 if (validMode === 'signup') {
-                    data.role = formData.get('role') || 'ROLE_PATIENT';
+                    data.role = 'ROLE_PATIENT';
                 }
-        
+
                 Telegram.WebApp.sendData(JSON.stringify(data));
                 Telegram.WebApp.close();
             });
         });
-        </script>
+    </script>
 </body>
 </html>
