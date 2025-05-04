@@ -2,39 +2,77 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Авторизация</title>
+    <title>VetClinic Auth</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { padding: 20px; font-family: Arial; background: #f0f2f5; }
         .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 15px; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
         button { background: #0088cc; color: white; border: none; padding: 12px 20px; border-radius: 5px; width: 100%; }
+        .role-group { margin: 15px 0; }
+        .role-option { display: flex; align-items: center; margin: 10px 0; }
+        .role-option input { width: auto; margin-right: 10px; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>🔐 Регистрация</h2>
-        <form id="regForm">
+        <h2 id="formTitle">🔐 Регистрация</h2>
+        <form id="authForm">
             <div class="form-group">
                 <input type="text" placeholder="Логин" name="username" required>
             </div>
             <div class="form-group">
                 <input type="password" placeholder="Пароль" name="password" required>
             </div>
-            <button type="submit">Зарегистрироваться</button>
+            <div id="roleGroup" class="role-group hidden">
+                <div class="role-option">
+                    <input type="radio" id="roleDoctor" name="role" value="ROLE_DOCTOR" required>
+                    <label for="roleDoctor">Доктор</label>
+                </div>
+                <div class="role-option">
+                    <input type="radio" id="rolePatient" name="role" value="ROLE_PATIENT" required>
+                    <label for="rolePatient">Пациент</label>
+                </div>
+            </div>
+            <button type="submit" id="submitButton">Отправить</button>
         </form>
     </div>
 
     <script>
-        document.getElementById('regForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const data = {
-                username: e.target.username.value,
-                password: e.target.password.value
-            };
-            Telegram.WebApp.sendData(JSON.stringify(data));
-            Telegram.WebApp.close();
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            const form = document.getElementById('authForm');
+            const roleGroup = document.getElementById('roleGroup');
+            const formTitle = document.getElementById('formTitle');
+            const submitButton = document.getElementById('submitButton');
+
+            if (mode === 'signup') {
+                formTitle.textContent = '🔐 Регистрация';
+                roleGroup.classList.remove('hidden');
+                submitButton.textContent = 'Зарегистрироваться';
+            } else {
+                formTitle.textContent = '🔑 Вход';
+                roleGroup.classList.add('hidden');
+                submitButton.textContent = 'Войти';
+            }
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const data = {
+                    action: mode,
+                    username: formData.get('username'),
+                    password: formData.get('password')
+                };
+                if (mode === 'signup') {
+                    data.role = formData.get('role');
+                }
+                Telegram.WebApp.sendData(JSON.stringify(data));
+                Telegram.WebApp.close();
+            });
         });
     </script>
 </body>
